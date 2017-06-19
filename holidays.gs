@@ -1,44 +1,4 @@
 
-function highlightToday(){
-  Logger.log("highlightToday")
-        var ss = SpreadsheetApp.getActiveSpreadsheet()
-        var today = new Date()
-        var currentMonth = today.getMonth()+1
-        var currentDay = today.getDate()
-        var sheetName = sheetMonthName(currentMonth)
-        var sheet = ss.getSheetByName(sheetName)
-        var sheetVariabili = ss.getSheetByName("Variabili")
-        Logger.log (sheet)
-        var range = sheet.getRange(4,2,1,31)
-        var daysInMonth = range.getValues()
-        var range = sheet.getRange(2,2,1,daysInMonth[0].length) 
-        var currentHoliday 
-        var dayHoliday
-        var green = "#d9ead3"
-        var prevRibbonRange = sheetVariabili.getRange(2,1,10)
-       Logger.log(daysInMonth[0].length)
-       Logger.log(currentDay)
-             
-       
-       for (var i = 0; i<daysInMonth[0].length; i++){
-          if (currentDay == i) {
-            
-            
-            var previousDay = sheetVariabili.getRange(2,2).getValue()
-            Logger.log(previousDay)
-            if (currentDay > previousDay) {
-                sheet.getRange(2, currentDay,1).copyFormatToRange(sheetVariabili, 1, 1, 2, 14)
-                //sheet.getRange(4, currentDay,10).copyFormatToRange(sheetVariabili, 2, 2, 3, 8)
-                sheetVariabili.getRange(2,2,1,11).copyFormatToRange(sheet, currentDay+1, currentDay+1, 2, 11)
-                           
-            continue
-            }
-            //range = sheet.getRange(2,currentDay+1).setValue("OGGI")     
-            
-          }
-       }
-}
-
 function importHolidays(){
   
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -89,7 +49,9 @@ function importHolidays(){
   sortSheets()
 }
 
+
 // inserisce in un array le festività per un mese
+
 function checkHolidays(sheetMonthName, mm,year){
   Logger.log("checkHolidays")
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -97,17 +59,23 @@ function checkHolidays(sheetMonthName, mm,year){
   var range = sheet.getRange(3,2,2,31)
   var sheetHolidays = ss.getSheetByName("Festività")
   var lastRowHolidays = sheetHolidays.getLastRow()
-  var holidays = sheetHolidays.getRange(2,1,lastRowHolidays,2).getValues()
+  Logger.log(lastRowHolidays)
+  var holidays = sheetHolidays.getRange(3,1,lastRowHolidays-2,2).getValues() // inizia dalla riga 3
+  Logger.log(holidays)
+  Logger.log(holidays.length)
   var holidaysInMonth = [] 
   for (var i=0; i<holidays.length; i++){
   //var currentHoliday = decrementDate(new Date(holidays[i][1]),1)
-  var currentHoliday = new Date(holidays[i][1])
-  var currentHolidayName = holidays[i][0]
-     if ((currentHoliday.getMonth())+1 == mm && currentHoliday.getYear() == year) {
-      holidaysInMonth.push([currentHoliday, currentHolidayName])
+    var currentHoliday = new Date(holidays[i][1])
+    var currentHolidayName = holidays[i][0]
+    Logger.log(currentHoliday.getYear())
+    Logger.log(year)
+    if (currentHoliday.getYear() == year){
+        if (currentHoliday.getMonth()+1 == mm) {
+              holidaysInMonth.push([currentHoliday, currentHolidayName])
+        }
     }
   }
-
   if (holidaysInMonth.length >0 ){
   Logger.log(holidaysInMonth)
        return holidaysInMonth
@@ -131,27 +99,26 @@ Logger.log("highlightHolidays")
          
         for (var i = 0; i<holidaysInMonth.length; i++){
           dayHoliday = (new Date(holidaysInMonth[i][0])).getDate()
-          Logger.log(dayHoliday) 
+          Logger.log('dayHoliday ' + dayHoliday) 
           var red = "#FF3336"
-          range = sheet.getRange(3,dayHoliday+3,12).setBackground(red) 
+          //range = sheet.getRange(inizioFestivita).(0,dayHoliday-1,12).setBackground(red) 
 //          range = sheet.getRange(4,dayHoliday+1).setBackground(red) 
 //          
 //          // scrive il nome della festività nella riga 4
-         
-          range = sheet.getRange(5,dayHoliday+3).setBackground(red) 
-          range = sheet.getRange(6,dayHoliday+3).setBackground(red) 
-          range = sheet.getRange(6,dayHoliday+3).setFontColor("#000000")
-          range = sheet.getRange(6,dayHoliday+3).setValue(holidaysInMonth[i][1])
-          range = sheet.getRange(7,dayHoliday +3,5,1).setBackground(red)
-          
+         Logger.log("dayHoliday " + dayHoliday)
+         Logger.log(sheet.getRange(inizioCalendario).getA1Notation())
+         Logger.log('numeroPersonale ' + numeroPersonale())
+         sheet.getRange(inizioCalendario).offset(0, dayHoliday-1,numeroPersonale() + 9-1).setBackground(red)
+         sheet.getRange(inizioCalendario).offset(3, dayHoliday-1).setValue(holidaysInMonth[i][1])
         }
         for (var j=0; j<daysInMonth.length; j++){
           currentDay = (new Date(daysInMonth[j])).getDay()
           currentDate = (new Date(daysInMonth[j])).getDate()
           if (currentDay = 0){
-           range = sheet.getRange(5,currentDate+3,8,1).setBackground('red')
-           }
-      
+          var lastRow = sheet.getRange(inizioFestivita).getLastRow()
+          Logger.log('lastRow ' + lastRow)
+           sheet.getRange(2, currentDate-1,lastRow).setBackground(red) 
+          }
          }
 }
 
@@ -162,22 +129,25 @@ function highlightWeekHolidays(sheetMonthName){
         var range = sheet.getRange(3,4,1,31)
         var daysInMonth = range.getValues()
         Logger.log('daysInMonth ' + daysInMonth)
+        Logger.log('daysInMonth ' + daysInMonth[0].length) 
         var lastRow = range.getLastRow()
         var lastCol = range.getLastColumn()
         var currentDay
         var currentDate 
         var lightRed = "#FF7375"
-          for (var col=0; col<=daysInMonth[0].length; col++){
+        Logger.log('daysInMonth ' + daysInMonth[0].length)
+          for (var col=0; col<=daysInMonth[0].length-1; col++){
              var newDate = new Date(daysInMonth[0][col]-1)
+             Logger.log('col ' + col)
              Logger.log('new Date ' + newDate)
              currentDate = incrementDate(newDate,1).getDate()
              Logger.log('currentDate ' + currentDate) 
              currentDay = newDate.getDay()
              if (currentDay == 6 || currentDay == 0) {
              Logger.log('currentDay ' + ' ' + currentDay)
-               range = sheet.getRange(6,col+4).setValue("festivo")
-               range = sheet.getRange(6,col+4).setFontColor(lightRed)
-               range = sheet.getRange(3,col+4,12,1).setBackground(lightRed)
+               //range = sheet.getRange(6,col+primaColonnaGiorni).setValue("festivo")
+               sheet.getRange(inizioCalendario).offset(0, col-1,numeroPersonale() + 9 -1).setBackground(lightRed)
+               
              }
           }
 }

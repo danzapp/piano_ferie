@@ -16,11 +16,13 @@ Logger.log("creatMonthFromHtml")
    if (created){
        fillCalendar(sheetMonthName(mm),mm, year)
           highlightWeekHolidays(sheetMonthName(mm))
-          var holidaysInMonth = checkHolidays(sheetMonthName(mm), mm)      
+          var holidaysInMonth = checkHolidays(sheetMonthName(mm), mm,year)      
           if (holidaysInMonth.length > 0) {  
            Logger.log("vacanze nel mese " + holidaysInMonth)
            highlightHolidays(holidaysInMonth, sheetMonthName(mm)) 
           }
+     
+      // ordina i fogli   
       sortSheets()
       var currentSheet = sheetMonthName(mm)
       Logger.log(currentSheet)
@@ -96,6 +98,23 @@ var ui = SpreadsheetApp.getUi()
          SpreadsheetApp.flush(); // Utilities.sleep(2000);
     } 
    var sheet = ss.getSheetByName('Template').copyTo(ss)
+    // proteggi il foglio
+   
+        var unprotected = [
+          sheet.getRange(rangeCalendario), 
+        ];
+         var protection = sheet.protect().setDescription('Foglio protetto tranne alcune celle');
+         protection.setUnprotectedRanges(unprotected);    
+        var me = Session.getEffectiveUser();
+        protection.addEditor(me);
+
+        protection.removeEditors(protection.getEditors());
+        if (protection.canDomainEdit()) {
+          protection.setDomainEdit(false);
+        }
+        Logger.log(protection.getEditors())
+        Logger.log(protection.getRange().getA1Notation())
+        
    sheet.setName(sheetName).activate();
    /* Make the new sheet active */
    Logger.log("Prospetto creato")
@@ -110,7 +129,7 @@ Logger.log(sheetMonthName)
   Logger.log("fillCalendar")
 //per testare la funzione
 //var mm = 1
-//var year = 2016
+//var year = 2017
 
 
   //trova la prima e l'ultima data del mese
@@ -135,23 +154,19 @@ Logger.log(sheetMonthName)
    var currentDate = new Date (firstDayOfMonth)
    
    Logger.log(currentDate)
-  // inserisci il nome del calendario su A2
+  // inserisci il nome del calendario su A3
   var ss = SpreadsheetApp.getActiveSpreadsheet()
-  ss.getRange('A2').setValue(Month[mm] + ' ' + year)
+  ss.getRange(rangeMese).setValue(Month[mm] + ' ' + year)
   //compila il calendario del mese
-  //Browser.msgBox('Sarà creato il prospetto del mese con ' + daysOfMonth + ' giorni')
+  var dayOfTheWeek
   currentDate = incrementDate(currentDate, -1)
   Logger.log('Giorni del mese ' + daysOfMonth)
-  for (var i = 0; i< daysOfMonth; i++){
+  for (var i = 0; i<daysOfMonth; i++){
     Logger.log(i + ' - - ' + currentDate)
     currentDate = incrementDate(currentDate, 1)
-    var dayOfTheWeek = currentDate.getDay()
-    var ss = SpreadsheetApp.getActiveSpreadsheet()
-    
+    dayOfTheWeek = currentDate.getDay()
     if (dayOfTheWeek >=0 && dayOfTheWeek <=7) {
-    
       modifySheetDays(currentDate, i+1) 
-
     }
     //cancellare eventuali colonne in eccesso es. settembre 30 giorni
   }
@@ -160,13 +175,9 @@ Logger.log(sheetMonthName)
 
 // richiamata da fillCalendar, inserisce le date nel foglio del mese
 function modifySheetDays(date, day){
-    if (day > 31){stop}
+    if (day > 32){stop}
   Logger.log('day ' + day)
-  Logger.log("date " + date + " modifySheetDays di " + (day+3))// inizia dalla quarta colonna
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getActiveSheet()
-  var range = sheet.getRange(3,day + 3 ).setValue(new Date(date)) 
-
+  ss.getActiveSheet().getRange(inizioCalendario).offset(0, day-1).setValue(new Date(date))
 }
 
 // cancella tutti i mesi

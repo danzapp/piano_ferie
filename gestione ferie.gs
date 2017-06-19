@@ -1,3 +1,5 @@
+
+
 function setToRichieste() {
   // ligth red #ff7375
   // red #ff3336
@@ -35,10 +37,10 @@ if (selAlert == true){
 range.setValues(data)
 switch(richieste) {
     case 0:
-        var html = "<div id='output' class='alert alert-warning'>Non è stata selezionato nessun giorno</div>"
+        var html = "<div id='output' class='alert alert-warning'>Non è stato selezionato nessun giorno</div>"
         break;
     case 1:
-        "<div id='output' class='alert alert-success'>Registrata correttamente la richiesta per un giorno di ferie</div>"
+        var html ="<div id='output' class='alert alert-success'>Registrata correttamente la richiesta per un giorno di ferie</div>"
         break;
     default:
         var html = "<div id='output' class='alert alert-success'> Sono state correttamente registrate richieste per " + richieste + " giorni di ferie</div>"
@@ -89,10 +91,10 @@ range.setValues(data)
 
 switch(accettate) {
     case 0:
-        var html = "<div id='output' class='alert alert-warning'>Non è stata selezionato nessun giorno</div>"
+        var html = "<div id='output' class='alert alert-warning'>Non è stata selezionato nessuna richiesta di ferie</div>"
         break;
     case 1:
-        "<div id='output' class='alert alert-success'>Registrata correttamente la richiesta per un giorno di ferie</div>"
+        var html ="<div id='output' class='alert alert-success'>Registrata correttamente la richiesta per un giorno di ferie</div>"
         break;
     default:
         var html = "<div id='output' class='alert alert-success'>Sono state accettate correttamente " + accettate + " richieste di ferie</div>"
@@ -107,7 +109,7 @@ function acceptAll(range) {
   // red #ff3336
   
   // seleziona la porzione di foglio con le richieste
-  var range = ss.getRange("E8:AH14")
+  var range = ss.getActiveSheet().getRange(rangeCalendario)
   var data = range.getValues()
   var cell
   var accettate = 0
@@ -125,13 +127,13 @@ function acceptAll(range) {
   range.setValues(data)
  switch(accettate) {
     case 0:
-        var html = "<div id='output' class='alert alert-success fade-in close'>Non è stata selezionato nessun giorno</div>"
+        var html = "<div id='output' class='alert alert-success close'>Non è stato selezionato nessun giorno</div>"
         break;
     case 1:
-        "<div id='output' class='alert alert-success fade-in close'>Accettata correttamente la richiesta di un giorno di ferie</div>"
+        var html = "<div id='output' class='alert alert-success '>Accettata correttamente la richiesta di un giorno di ferie</div>"
         break;
     default:
-        var html = "<div id='output' class='alert alert-success fade-in close'>Sono state accettate correttamente " + accettate + " richieste di ferie</div>"
+        var html = "<div id='output' class='alert alert-success'>Sono state accettate correttamente " + accettate + " richieste di ferie</div>"
 }
   return html
  }

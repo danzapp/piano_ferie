@@ -30,3 +30,18 @@ return sheetMonthName
 function getMaxOfArray(numArray) {
   return Math.max.apply(null, numArray);
 }
+
+function findCurrentUser(){
+var data = ss.getSheetByName('Personale').getDataRange().getValues()
+var objPersonale = ObjApp.rangeToObjectsNoCamel(data)
+
+    var currentUserObj = objPersonale.filter(function (el){
+        return el.email == currentUserMail ;
+    })
+ Logger.log(currentUserObj)
+ Logger.log('currentUserCognome ' + currentUserObj['Cognome'])
+ return currentUserObj['Cognome']
+}
+
+
+
